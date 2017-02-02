@@ -11,6 +11,7 @@
 from prep_terrain_data import makeTerrainData
 from class_vis import prettyPicture, output_image
 from ClassifyNB import classify
+from NBAccuracy import NBAccuracy
 
 
 features_train, labels_train, features_test, labels_test = makeTerrainData()
@@ -35,3 +36,7 @@ clf = classify(features_train, labels_train)
 
 # draw the decision boundary with the text points overlaid
 prettyPicture(clf, features_test, labels_test)
+
+# print overall accuracy of this model
+accuracy = NBAccuracy(features_train, labels_train, features_test, labels_test)
+print("Accuracy: " + str(accuracy))
