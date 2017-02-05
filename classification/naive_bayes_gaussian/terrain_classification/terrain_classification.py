@@ -7,12 +7,13 @@
     boundary found in the lesson video, and make a plot that
     visually shows the decision boundary """
 
-
-from prep_terrain_data import makeTerrainData
-from class_vis import prettyPicture, output_image
+import sys
 from ClassifyNB import classify
 from NBAccuracy import NBAccuracy
 
+sys.path.append("../../common")
+from class_vis import prettyPicture, output_image  # noqa
+from prep_terrain_data import makeTerrainData  # noqa
 
 features_train, labels_train, features_test, labels_test = makeTerrainData()
 

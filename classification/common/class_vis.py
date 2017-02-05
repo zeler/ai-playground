@@ -55,9 +55,7 @@ def prettyPicture(clf, X_test, y_test):
     plt.xlabel("bumpiness")
     plt.ylabel("grade")
 
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-
-    plt.savefig(dir_path + os.path.sep + "test.png")
+    plt.savefig("plot.png")
 
 
 def output_image(name, format, bytes):
