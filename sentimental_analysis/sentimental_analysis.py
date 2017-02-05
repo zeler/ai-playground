@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import tweepy
 from textblob import TextBlob
 import csv
