@@ -1,5 +1,5 @@
 import sys
-from sklearn.svm import SVC
+from classifySVM import classify
 from sklearn.metrics import accuracy_score
 
 sys.path.append("../../common")
@@ -8,8 +8,7 @@ from prep_terrain_data import makeTerrainData  # noqa
 
 features_train, labels_train, features_test, labels_test = makeTerrainData()
 
-clf = SVC(kernel="linear")
-clf.fit(features_train, labels_train)
+clf = classify(features_train, labels_train)
 
 pred = clf.predict(features_test)
 acc = accuracy_score(pred, labels_test)
