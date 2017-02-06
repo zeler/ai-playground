@@ -1,10 +1,4 @@
 import sys
-
-import matplotlib.pyplot as plt
-import copy
-import numpy as np
-import pylab as pl
-
 from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score
 
