@@ -91,3 +91,6 @@ ENV/
 
 # vsCode editor
 .vscode
+
+# enron data
+enron-project/maildir
