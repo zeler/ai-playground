@@ -2,7 +2,7 @@ import sys
 from classifyKNN import classify
 from sklearn.metrics import accuracy_score
 
-sys.path.append("../../common")
+sys.path.append("../../../common")
 from class_vis import prettyPicture, output_image  # noqa
 from prep_terrain_data import makeTerrainData  # noqa
 

@@ -58,11 +58,15 @@ def prettyPicture(clf, X_test, y_test):
     plt.savefig("plot.png")
 
 
-def output_image(name, format, bytes):
-    image_start = "BEGIN_IMAGE_f9825uweof8jw9fj4r8"
-    image_end = "END_IMAGE_0238jfw08fjsiufhw8frs"
-    data = {}
-    data['name'] = name
-    data['format'] = format
-    data['bytes'] = base64.encodestring(bytes)
-    print(image_start + json.dumps(data) + image_end)
+def plot_regression(reg, ages_train, ages_test,
+                    net_worths_train, net_worths_test):
+
+    plt.clf()
+    plt.scatter(ages_train, net_worths_train, color="b", label="train data")
+    plt.scatter(ages_test, net_worths_test, color="r", label="test data")
+    plt.plot(ages_test, reg.predict(ages_test), color="black")
+    plt.legend(loc=2)
+    plt.xlabel("ages")
+    plt.ylabel("net worths")
+
+    plt.savefig("plot.png")

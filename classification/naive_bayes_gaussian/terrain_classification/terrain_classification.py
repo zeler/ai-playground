@@ -11,7 +11,7 @@ import sys
 from ClassifyNB import classify
 from NBAccuracy import NBAccuracy
 
-sys.path.append("../../common")
+sys.path.append("../../../common")
 from class_vis import prettyPicture, output_image  # noqa
 from prep_terrain_data import makeTerrainData  # noqa
 
