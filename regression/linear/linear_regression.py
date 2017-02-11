@@ -15,3 +15,10 @@ ages_train, ages_test, net_worths_train, net_worths_test = ageNetWorthData()
 reg = linearReg(ages_train, net_worths_train)
 
 plot_regression(reg, ages_train, ages_test, net_worths_train, net_worths_test)
+
+print("Net worth prediction:", reg.predict([[29]])[0][0])
+print("Slope", reg.coef_[0][0])
+print("Intercept", reg.intercept_[0])
+
+print("Test r-squared:", reg.score(ages_test, net_worths_test))
+print("Train r-squared:", reg.score(ages_train, net_worths_train))
