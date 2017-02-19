@@ -4,6 +4,7 @@ import numpy
 import matplotlib
 import sys
 from sklearn.cluster import KMeans
+from sklearn.preprocessing import MinMaxScaler
 
 sys.path.append("../../udacity_ud120/tools/")
 from feature_format import featureFormat, targetFeatureSplit  # noqa
@@ -15,6 +16,27 @@ import matplotlib.pyplot as plt  # noqa
     This code requires python 2.7
 """
 
+
+def printMinMaxValue(data):
+    minESO = sys.maxint
+    maxESO = 0
+    minSalary = sys.maxint
+    maxSalary = 0
+
+    for person in data:
+        if person[2] != 0:
+            if person[2] < minESO:
+                minESO = person[2]
+            if person[2] > maxESO:
+                maxESO = person[2]
+        if person[1] != 0:
+            if person[1] < minSalary:
+                minSalary = person[1]
+            if person[1] > maxSalary:
+                maxSalary = person[1]
+
+    print "Exercised stock options min", minESO, "max", maxESO
+    print "Salary min", minSalary, "max", maxSalary
 
 def Draw(pred, features, poi, mark_poi=False, name="image.png",
          f1_name="feature 1", f2_name="feature 2"):
@@ -57,27 +79,14 @@ data = featureFormat(data_dict, features_list)
 poi, finance_features = targetFeatureSplit(data)
 
 # min and max for exercised_stock_options
+printMinMaxValue(data)
 
-minESO = sys.maxint
-maxESO = 0
-minSalary = sys.maxint
-maxSalary = 0
+print "After clustering:"
 
-for person in data:
-    if person[2] != 0:
-        if person[2] < minESO:
-            minESO = person[2]
-        if person[2] > maxESO:
-            maxESO = person[2]
-    if person[1] != 0:
-        if person[1] < minSalary:
-            minSalary = person[1]
-        if person[1] > maxSalary:
-            maxSalary = person[1]
+mms = MinMaxScaler()
+finance_features = mms.fit_transform(finance_features)
 
-print "Exercised stock options min", minESO, "max", maxESO
-print "Salary min", minSalary, "max", maxSalary
-
+print "Example for salary 200000 and exercised_stock_options 1000000", mms.transform([[200000., 1000000.]])  # noqa
 
 # in the "clustering with 3 features" part of the mini-project,
 # you'll want to change this line to
