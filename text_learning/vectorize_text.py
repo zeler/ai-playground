@@ -9,6 +9,8 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 
 """
+    This code requires python 2.7
+
     Starter code to process the emails from Sara and Chris to extract
     the features and get the documents ready for classification.
 

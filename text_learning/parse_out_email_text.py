@@ -5,7 +5,10 @@ import string
 
 
 def parseOutText(f):
-    """ given an opened email file f, parse out all text below the
+    """ 
+        This code requires python 2.7
+
+        given an opened email file f, parse out all text below the
         metadata block at the top
         (in Part 2, you will also add stemming capabilities)
         and return a string that contains all the words
