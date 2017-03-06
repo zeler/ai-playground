@@ -7,7 +7,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 
 '''
-    Simple Pokemon type classifier based on Pokemon stats.BaseException
+    Simple Pokemon type classifier based on Pokemon stats.
 
     TODO: maybe change algorithm, use less features...
 '''
