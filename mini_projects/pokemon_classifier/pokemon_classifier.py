@@ -1,5 +1,7 @@
 #!/bin/python
 import pandas as pd
+import matplotlib
+
 from sklearn.preprocessing import LabelEncoder
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_extraction import DictVectorizer
@@ -7,6 +9,9 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from sklearn.feature_selection import f_classif, SelectKBest
 from sklearn.decomposition import PCA
+
+matplotlib.use('TkAgg')
+import seaborn as sns  # noqa
 
 '''
     Simple Pokemon type classifier based on Pokemon stats.
@@ -21,6 +26,42 @@ def doPCA(features):
     print(pca.components_)
 
 df = pd.read_csv('Pokemon.csv')
+
+# data exploration
+# drop these columns, no added value
+plotdata = df.drop(['Generation', 'Legendary'], 1)
+
+sns.set(color_codes=True)
+# sns.jointplot(x="HP", y="Attack", data=plotdata)
+# sns.plt.show()
+
+# drop not useful columns and plot stats
+plotdata = plotdata.drop(['Total', '#'], 1)
+
+# sns.boxplot(data=plotdata)
+# sns.plt.show()
+
+# now include types
+plotdata = pd.melt(plotdata,
+                   id_vars=["Name", "Type 1", "Type 2"],
+                   var_name="Stat")
+
+print(plotdata.head())
+
+sns.set_style("whitegrid")
+with sns.color_palette([
+    "#8ED752", "#F95643", "#53AFFE", "#C3D221", "#BBBDAF",
+    "#AD5CA2", "#F8E64E", "#F0CA42", "#F9AEFE", "#A35449",
+    "#FB61B4", "#CDBD72", "#7673DA", "#66EBFF", "#8B76FF",
+    "#8E6856", "#C3C1D7", "#75A4F9"],
+                        n_colors=18, desat=.9):
+
+    sns.plt.figure(figsize=(12, 10))
+    sns.plt.ylim(0, 275)
+    sns.swarmplot(x="Stat", y="value", data=plotdata,
+                  hue="Type 1", split=True, size=7)
+    sns.plt.legend(bbox_to_anchor=(1, 1), loc=2, borderaxespad=0.)
+    sns.plt.show()
 
 # there are features with missing data. todo: remove them altogether
 df = df.fillna('NA')
