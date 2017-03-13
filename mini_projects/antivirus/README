@@ -1,0 +1,9 @@
+Based on Siraj Raval video:
+
+https://www.youtube.com/watch?v=iLNHVwSu9EA
+
+which is essentially based on Te-k code:
+
+https://github.com/Te-k
+
+Made additional changes to checkpe.py to make it work on python 3.6.0
