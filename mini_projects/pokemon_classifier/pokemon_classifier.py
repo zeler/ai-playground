@@ -9,6 +9,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from sklearn.feature_selection import f_classif, SelectKBest
 from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
 
 matplotlib.use('TkAgg')
 import seaborn as sns  # noqa
@@ -63,12 +64,17 @@ with sns.color_palette([
     sns.plt.legend(bbox_to_anchor=(1, 1), loc=2, borderaxespad=0.)
     sns.plt.show()
 
-# there are features with missing data. todo: remove them altogether
-df = df.fillna('NA')
+# there are features with missing data. remove them altogether
+counter_nan = df.isnull().sum()
+print("Columns with NaN \n", counter_nan)
+
+counter_without_nan = counter_nan[counter_nan == 0]
+print("Columns without NaN \n", counter_without_nan)
+
+df = df[counter_without_nan.keys()]
 
 # features to use
-cols = ['HP', 'Attack', 'Defense', 'Sp. Atk', 'Sp. Def', 'Speed',
-        'Type 2']
+cols = ['HP', 'Attack', 'Defense', 'Sp. Atk', 'Sp. Def', 'Speed']
 
 # Type 1 will be used for labels
 labels = df['Type 1'].as_matrix()
@@ -87,12 +93,13 @@ feature_vectorizer = DictVectorizer(sparse=False)
 
 # encode labels
 label_encoder = LabelEncoder()
+ss = StandardScaler()
 
 # dot actual feature and label transformations
-train_features = feature_vectorizer.fit_transform(train_features)
+train_features = ss.fit_transform(feature_vectorizer.fit_transform(train_features))
 train_labels = label_encoder.fit_transform(train_labels)
 
-test_features = feature_vectorizer.transform(test_features)
+test_features = ss.transform(feature_vectorizer.transform(test_features))
 test_labels = label_encoder.transform(test_labels)
 
 # do PCA
