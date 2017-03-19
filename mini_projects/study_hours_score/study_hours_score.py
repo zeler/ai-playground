@@ -4,7 +4,6 @@ import numpy as np
 import matplotlib
 from matplotlib import pyplot as plt
 from sklearn.linear_model import LinearRegression
-from sklearn.linear_model import SGDRegressor
 
 matplotlib.use('TkAgg')
 import seaborn as sns  # noqa
@@ -20,7 +19,7 @@ X = df['Hours'].values[:, np.newaxis]
 y = df['Score'].values
 
 # create and fit linear_model
-reg = SGDRegressor(learning_rate="invscaling")
+reg = LinearRegression()
 reg.fit(X, y)
 
 print("Slope:", reg.coef_, "Intercept:", reg.intercept_)
