@@ -7,6 +7,7 @@ You must test your agent's strength against a set of agents with known
 relative strength using tournament.py and include the results in your report.
 """
 import random
+from math import inf
 
 
 class Timeout(Exception):
@@ -36,9 +37,9 @@ def custom_score(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
-
-    # TODO: finish this function!
-    raise NotImplementedError
+    print(game.get_legal_moves(player=player))
+    print(len(game.get_legal_moves(player=player)))
+    return float(len(game.get_legal_moves(player=player)))
 
 
 class CustomPlayer:
@@ -53,7 +54,7 @@ class CustomPlayer:
         A strictly positive integer (i.e., 1, 2, 3,...) for the number of
         layers in the game tree to explore for fixed-depth search. (i.e., a
         depth of one (1) would only explore the immediate sucessors of the
-        current state.)  This parameter should be ignored when iterative = True.
+        current state.)  This parameter should be ignored when iterative = True
 
     score_fn : callable (optional)
         A function to use for heuristic evaluation of game states.
@@ -118,25 +119,33 @@ class CustomPlayer:
 
         self.time_left = time_left
 
-        # TODO: finish this function!
-
         # Perform any required initializations, including selecting an initial
         # move from the game board (i.e., an opening book), or returning
         # immediately if there are no legal moves
+
+        print(game.to_string())
+
+        # TODO calculcate properly
+        if not game.get_player_location(game.active_player) and game.move_is_legal((3, 3)):  # noqa
+            return (3, 3)
+
+        score = None
+        position = None
 
         try:
             # The search method call (alpha beta or minimax) should happen in
             # here in order to avoid timeout. The try/except block will
             # automatically catch the exception raised by the search method
             # when the timer gets close to expiring
-            pass
+            if self.method == 'minimax':
+                score, position = self.minimax(game.copy(), self.search_depth)
 
         except Timeout:
             # Handle any actions required at timeout, if necessary
             pass
 
         # Return the best move from the last completed search iteration
-        raise NotImplementedError
+        return position
 
     def minimax(self, game, depth, maximizing_player=True):
         """Implement the minimax search algorithm as described in the lectures.
@@ -172,10 +181,38 @@ class CustomPlayer:
         if self.time_left() < self.TIMER_THRESHOLD:
             raise Timeout()
 
-        # TODO: finish this function!
-        raise NotImplementedError
+        player = game.active_player if maximizing_player else game.get_opponent(game.active_player)  # noqa
 
-    def alphabeta(self, game, depth, alpha=float("-inf"), beta=float("inf"), maximizing_player=True):
+        if depth == 0 or len(game.get_legal_moves(player)) == 0:
+            return self.score(game, player), game.get_player_location(player)
+
+        if maximizing_player:
+            best_score = -inf
+            best_position = (-1, -1)
+
+            for move in game.get_legal_moves(player):
+                future_score, future_position = self.minimax(game.forecast_move(move), depth - 1, maximizing_player=False)  # noqa
+
+                if (best_score < future_score):
+                    best_score = future_score
+                    best_position = future_position
+
+            return best_score, best_position
+        # minimizing player
+        else:
+            best_score = inf
+            best_position = (-1, -1)
+
+            for move in game.get_legal_moves(player):
+                future_score, future_position = self.minimax(game.forecast_move(move), depth - 1, maximizing_player=True)  # noqa
+
+                if (best_score > future_score):
+                    best_score = future_score
+                    best_position = future_position
+
+            return best_score, best_position
+
+    def alphabeta(self, game, depth, alpha=float("-inf"), beta=float("inf"), maximizing_player=True):  # noqa
         """Implement minimax search with alpha-beta pruning as described in the
         lectures.
 
