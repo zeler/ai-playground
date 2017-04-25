@@ -253,5 +253,35 @@ class CustomPlayer:
         if self.time_left() < self.TIMER_THRESHOLD:
             raise Timeout()
 
-        # TODO: finish this function!
-        raise NotImplementedError
+        utility = game.utility(game.active_player)
+        if utility != 0:
+            return utility, (-1, -1)
+
+        if depth == 0:
+            return self.score(game, self), (-1, -1)
+
+        if maximizing_player:
+            best_score = -inf
+            best_position = (-1, -1)
+
+            for move in game.get_legal_moves(game.active_player):
+                future = self.minimax(game.forecast_move(move), depth - 1, maximizing_player=False)  # noqa
+
+                if (best_score < future[0]):
+                    best_score = future[0]
+                    best_position = move
+
+            return best_score, best_position
+        # minimizing player
+        else:
+            best_score = inf
+            best_position = (-1, -1)
+
+            for move in game.get_legal_moves(game.active_player):
+                future = self.minimax(game.forecast_move(move), depth - 1, maximizing_player=True)  # noqa
+
+                if (best_score > future[0]):
+                    best_score = future[0]
+                    best_position = move
+
+            return best_score, best_position
