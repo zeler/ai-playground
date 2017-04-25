@@ -265,11 +265,17 @@ class CustomPlayer:
             best_position = (-1, -1)
 
             for move in game.get_legal_moves(game.active_player):
-                future = self.minimax(game.forecast_move(move), depth - 1, maximizing_player=False)  # noqa
+                future = self.alphabeta(game.forecast_move(move), depth - 1, alpha, beta, maximizing_player=False)  # noqa
 
                 if (best_score < future[0]):
                     best_score = future[0]
                     best_position = move
+
+                alpha = max(alpha, future[0])
+
+                if beta <= alpha:
+                    # beta cut-off
+                    break
 
             return best_score, best_position
         # minimizing player
@@ -278,10 +284,16 @@ class CustomPlayer:
             best_position = (-1, -1)
 
             for move in game.get_legal_moves(game.active_player):
-                future = self.minimax(game.forecast_move(move), depth - 1, maximizing_player=True)  # noqa
+                future = self.alphabeta(game.forecast_move(move), depth - 1, alpha, beta, maximizing_player=True)  # noqa
 
                 if (best_score > future[0]):
                     best_score = future[0]
                     best_position = move
+
+                beta = min(beta, future[0])
+
+                if beta <= alpha:
+                    # alpha cut-off
+                    break
 
             return best_score, best_position
