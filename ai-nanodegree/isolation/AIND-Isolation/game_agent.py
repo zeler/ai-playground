@@ -123,8 +123,6 @@ class CustomPlayer:
         # move from the game board (i.e., an opening book), or returning
         # immediately if there are no legal moves
 
-        print(game.to_string())
-
         # TODO calculcate properly
         if not game.get_player_location(game.active_player) and game.move_is_legal((3, 3)):  # noqa
             return (3, 3)
@@ -181,21 +179,23 @@ class CustomPlayer:
         if self.time_left() < self.TIMER_THRESHOLD:
             raise Timeout()
 
-        player = game.active_player if maximizing_player else game.get_opponent(game.active_player)  # noqa
+        utility = game.utility(game.active_player)
+        if utility != 0:
+            return utility, (-1, -1)
 
-        if depth == 0 or len(game.get_legal_moves(player)) == 0:
-            return self.score(game, player), game.get_player_location(player)
+        if depth == 0:
+            return self.score(game, self), (-1, -1)
 
         if maximizing_player:
             best_score = -inf
             best_position = (-1, -1)
 
-            for move in game.get_legal_moves(player):
-                future_score, future_position = self.minimax(game.forecast_move(move), depth - 1, maximizing_player=False)  # noqa
+            for move in game.get_legal_moves(game.active_player):
+                future = self.minimax(game.forecast_move(move), depth - 1, maximizing_player=False)  # noqa
 
-                if (best_score < future_score):
-                    best_score = future_score
-                    best_position = future_position
+                if (best_score < future[0]):
+                    best_score = future[0]
+                    best_position = move
 
             return best_score, best_position
         # minimizing player
@@ -203,12 +203,12 @@ class CustomPlayer:
             best_score = inf
             best_position = (-1, -1)
 
-            for move in game.get_legal_moves(player):
-                future_score, future_position = self.minimax(game.forecast_move(move), depth - 1, maximizing_player=True)  # noqa
+            for move in game.get_legal_moves(game.active_player):
+                future = self.minimax(game.forecast_move(move), depth - 1, maximizing_player=True)  # noqa
 
-                if (best_score > future_score):
-                    best_score = future_score
-                    best_position = future_position
+                if (best_score > future[0]):
+                    best_score = future[0]
+                    best_position = move
 
             return best_score, best_position
 
