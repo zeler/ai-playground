@@ -37,9 +37,7 @@ def custom_score(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
-    print(game.get_legal_moves(player=player))
-    print(len(game.get_legal_moves(player=player)))
-    return float(len(game.get_legal_moves(player=player)))
+    return len(game.get_legal_moves(player=player)) - len(game.get_legal_moves(player=game.get_opponent(player)))  # noqa
 
 
 class CustomPlayer:
@@ -123,7 +121,9 @@ class CustomPlayer:
         # move from the game board (i.e., an opening book), or returning
         # immediately if there are no legal moves
 
-        if not game.get_legal_moves():
+        legal_moves = game.get_legal_moves()
+
+        if len(legal_moves) == 0:
             return (-1, -1)
 
         # TODO calculcate properly
@@ -155,6 +155,9 @@ class CustomPlayer:
         except Timeout:
             # Handle any actions required at timeout, if necessary
             pass
+
+        if best_position not in legal_moves and len(legal_moves) > 0:
+            best_position = legal_moves[0]
 
         # Return the best move from the last completed search iteration
         return best_position
@@ -206,31 +209,34 @@ class CustomPlayer:
         if depth == 0:
             return self.score(game, self), (-1, -1)
 
+        legal_moves = game.get_legal_moves(game.active_player)
+
         if maximizing_player:
             best_score = -inf
             best_position = (-1, -1)
 
-            for move in game.get_legal_moves(game.active_player):
+            for move in legal_moves:
                 future = self.minimax(game.forecast_move(move), depth - 1, maximizing_player=False)  # noqa
 
                 if (best_score < future[0]):
                     best_score = future[0]
                     best_position = move
-
-            return best_score, best_position
         # minimizing player
         else:
             best_score = inf
             best_position = (-1, -1)
 
-            for move in game.get_legal_moves(game.active_player):
+            for move in legal_moves:
                 future = self.minimax(game.forecast_move(move), depth - 1, maximizing_player=True)  # noqa
 
                 if (best_score > future[0]):
                     best_score = future[0]
                     best_position = move
 
-            return best_score, best_position
+        if best_position not in legal_moves and len(legal_moves) > 0:
+            best_position = legal_moves[0]
+
+        return best_score, best_position
 
     def alphabeta(self, game, depth, alpha=float("-inf"), beta=float("inf"), maximizing_player=True):  # noqa
         """Implement minimax search with alpha-beta pruning as described in the
@@ -280,11 +286,13 @@ class CustomPlayer:
         if depth == 0:
             return self.score(game, self), (-1, -1)
 
+        legal_moves = game.get_legal_moves(game.active_player)
+
         if maximizing_player:
             best_score = -inf
             best_position = (-1, -1)
 
-            for move in game.get_legal_moves(game.active_player):
+            for move in legal_moves:
                 future = self.alphabeta(game.forecast_move(move), depth - 1, alpha, beta, maximizing_player=False)  # noqa
 
                 if (best_score < future[0]):
@@ -296,14 +304,12 @@ class CustomPlayer:
                 if beta <= alpha:
                     # beta cut-off
                     break
-
-            return best_score, best_position
         # minimizing player
         else:
             best_score = inf
             best_position = (-1, -1)
 
-            for move in game.get_legal_moves(game.active_player):
+            for move in legal_moves:
                 future = self.alphabeta(game.forecast_move(move), depth - 1, alpha, beta, maximizing_player=True)  # noqa
 
                 if (best_score > future[0]):
@@ -316,4 +322,7 @@ class CustomPlayer:
                     # alpha cut-off
                     break
 
-            return best_score, best_position
+        if best_position not in legal_moves and len(legal_moves) > 0:
+            best_position = legal_moves[0]
+
+        return best_score, best_position
