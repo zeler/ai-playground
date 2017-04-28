@@ -37,7 +37,7 @@ def custom_score(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
-    return len(game.get_legal_moves(player=player)) - len(game.get_legal_moves(player=game.get_opponent(player)))  # noqa
+    return float(2 * len(game.get_legal_moves(player=player)) - len(game.get_legal_moves(player=game.get_opponent(player))))  # noqa
 
 
 class CustomPlayer:
@@ -123,12 +123,15 @@ class CustomPlayer:
 
         legal_moves = game.get_legal_moves()
 
-        if len(legal_moves) == 0:
+        if not legal_moves:
             return (-1, -1)
 
-        # TODO calculcate properly
-        if not game.get_player_location(game.active_player) and game.move_is_legal((3, 3)):  # noqa
-            return (3, 3)
+        x_pos = game.width / 2
+        y_pos = game.height / 2
+
+        # Opening move - try to place player in the middle
+        if not game.get_player_location(game.active_player) and game.move_is_legal((x_pos, y_pos)):  # noqa
+            return (x_pos, y_pos)
 
         best_score = -inf
         best_position = (-1, -1)
@@ -156,7 +159,7 @@ class CustomPlayer:
             # Handle any actions required at timeout, if necessary
             pass
 
-        if best_position not in legal_moves and len(legal_moves) > 0:
+        if best_position not in legal_moves:
             best_position = legal_moves[0]
 
         # Return the best move from the last completed search iteration
@@ -232,9 +235,6 @@ class CustomPlayer:
                 if (best_score > future[0]):
                     best_score = future[0]
                     best_position = move
-
-        if best_position not in legal_moves and len(legal_moves) > 0:
-            best_position = legal_moves[0]
 
         return best_score, best_position
 
@@ -321,8 +321,5 @@ class CustomPlayer:
                 if beta <= alpha:
                     # alpha cut-off
                     break
-
-        if best_position not in legal_moves and len(legal_moves) > 0:
-            best_position = legal_moves[0]
 
         return best_score, best_position
