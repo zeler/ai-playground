@@ -37,8 +37,60 @@ def custom_score(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
-    return float(2 * len(game.get_legal_moves(player=player)) - len(game.get_legal_moves(player=game.get_opponent(player))))  # noqa
 
+    if len(game.get_blank_spaces()) > 0.5 * game.width * game.height:
+        return custom_score2(game, player)
+
+    player_moves = game.get_legal_moves(player=player)
+    opponent_moves = game.get_legal_moves(player=game.get_opponent(player))
+    player_score = 0
+    opponent_score = 0
+
+    for move in player_moves:
+        player_score += get_square_size(game, move)
+
+    for move in opponent_moves:
+        opponent_score += get_square_size(game, move)
+
+    return player_score - 1.1 * opponent_score  # noqa
+
+def get_square_size(game, move):
+    min_height = move[0] - 3 if move[0] - 3 > 0 else 0
+    max_height = move[0] + 3 if move[0] + 3 > 0 else game.width
+    min_width = move[1] - 3 if move[1] - 3 > 0 else 0
+    max_width = move[1] + 3 if move[1] + 3 > 0 else game.width
+
+    positions = [(x, y) for x in range(min_height, max_height) for y in range(min_width, max_width)]
+    blank = game.get_blank_spaces()
+
+    count = 0
+    for pos in positions:
+        if pos in blank:
+            count += 1
+
+    return count
+
+def custom_score2(game, player):
+
+    player_moves = game.get_legal_moves(player=player)
+    opponent_moves = game.get_legal_moves(player=game.get_opponent(player))
+    score = 0
+
+    for move in opponent_moves:
+        if is_near_wall(game, move):
+            score += 5
+        if is_in_corner(game, move):
+            score += 2
+
+    return float(len(player_moves) - len(opponent_moves)) + score  # noqa
+
+def is_near_wall(game, move):
+    """Calculate if move lies near wall"""
+    return True if move[0] in [0, game.height - 1] and move[1] in [0, game.width - 1] else False
+
+def is_in_corner(game, move):
+    """Calculate if move lies near wall"""
+    return True if move in [(0,0), (game.height - 1, 0), (0, game.width - 1), (game.height - 1, game.width - 1)] else False
 
 class CustomPlayer:
     """Game-playing agent that chooses a move using your evaluation function
