@@ -37,9 +37,27 @@ def custom_score(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
+    return float(combined_heuristics(game, player))
 
-    if len(game.get_blank_spaces()) > 0.5 * game.width * game.height:
-        return custom_score2(game, player)
+
+def combined_heuristics(game, player):
+    """
+    Combined heuristics using number
+    of clear spaces around landing move in early stages of the game and wall and corner detection in later stages.
+    """
+
+    if len(game.get_blank_spaces()) < 0.4 * game.width * game.height:
+        return score_mc_with_walls_corners(game, player)
+
+    return score_blank_spaces_in_squares(game, player)
+
+
+def score_blank_spaces_in_squares(game, player):
+    """ 
+    This heuristics is based o count of blank spaces around possible landing moves of this move. The motivation for this
+    is, the less balnk spaces are around landing moves overally, the more (less) posibilities for next move will player 
+    (opponent) have. The priority for minimizing opponent moves is slighty higher.
+    """
 
     player_moves = game.get_legal_moves(player=player)
     opponent_moves = game.get_legal_moves(player=game.get_opponent(player))
@@ -47,14 +65,14 @@ def custom_score(game, player):
     opponent_score = 0
 
     for move in player_moves:
-        player_score += get_square_size(game, move)
+        player_score += get_blank_count_on_land(game, move)
 
     for move in opponent_moves:
-        opponent_score += get_square_size(game, move)
+        opponent_score += get_blank_count_on_land(game, move)
 
-    return player_score - 1.1 * opponent_score  # noqa
+    return player_score - 1.25 * opponent_score  # noqa
 
-def get_square_size(game, move):
+def get_blank_count_on_land(game, move):
     min_height = move[0] - 3 if move[0] - 3 > 0 else 0
     max_height = move[0] + 3 if move[0] + 3 > 0 else game.width
     min_width = move[1] - 3 if move[1] - 3 > 0 else 0
@@ -70,8 +88,11 @@ def get_square_size(game, move):
 
     return count
 
-def custom_score2(game, player):
-
+def score_mc_with_walls_corners(game, player):
+    """
+    This is an improved version of 'count legal moves' heuristics. Any position near wall/corner is penalized for player
+    as this further reduces valid move possibilities in the future.
+    """
     player_moves = game.get_legal_moves(player=player)
     opponent_moves = game.get_legal_moves(player=game.get_opponent(player))
     score = 0
@@ -79,6 +100,7 @@ def custom_score2(game, player):
     for move in opponent_moves:
         if is_near_wall(game, move):
             score += 5
+        # further penalize corners
         if is_in_corner(game, move):
             score += 2
 
@@ -169,10 +191,8 @@ class CustomPlayer:
 
         self.time_left = time_left
 
-        # Perform any required initializations, including selecting an initial
-        # move from the game board (i.e., an opening book), or returning
-        # immediately if there are no legal moves
 
+        # count legal moves - if there are not any, quickly end
         legal_moves = game.get_legal_moves()
 
         if not legal_moves:
@@ -196,9 +216,11 @@ class CustomPlayer:
 
             if self.iterative:
                 depth = 1
+                # Iterativly increase search depth
                 while True:
                     score, position = self.execute_search(game, depth)
 
+                    # If current score is better the best found, update results
                     if score > best_score:
                         best_score = score
                         best_position = position
@@ -211,6 +233,8 @@ class CustomPlayer:
             # Handle any actions required at timeout, if necessary
             pass
 
+        # special case, when we didn't find any valid (not losing) position in next move, but there are still moves left
+        # Choose first one. This will usually end in a loss, except for cases, when opponent can't move at all
         if best_position not in legal_moves:
             best_position = legal_moves[0]
 
@@ -257,15 +281,18 @@ class CustomPlayer:
         if self.time_left() < self.TIMER_THRESHOLD:
             raise Timeout()
 
+        # decide whether this move is terminal
         utility = game.utility(game.active_player)
         if utility != 0:
             return utility, (-1, -1)
 
+        # quick return if depth is 0
         if depth == 0:
             return self.score(game, self), (-1, -1)
 
         legal_moves = game.get_legal_moves(game.active_player)
 
+        # minimax implementation
         if maximizing_player:
             best_score = -inf
             best_position = (-1, -1)
@@ -273,7 +300,7 @@ class CustomPlayer:
             for move in legal_moves:
                 future = self.minimax(game.forecast_move(move), depth - 1, maximizing_player=False)  # noqa
 
-                if (best_score < future[0]):
+                if best_score < future[0]:
                     best_score = future[0]
                     best_position = move
         # minimizing player
@@ -284,7 +311,7 @@ class CustomPlayer:
             for move in legal_moves:
                 future = self.minimax(game.forecast_move(move), depth - 1, maximizing_player=True)  # noqa
 
-                if (best_score > future[0]):
+                if best_score > future[0]:
                     best_score = future[0]
                     best_position = move
 
@@ -331,15 +358,18 @@ class CustomPlayer:
         if self.time_left() < self.TIMER_THRESHOLD:
             raise Timeout()
 
+        # decide whether this move is terminal
         utility = game.utility(game.active_player)
         if utility != 0:
             return utility, (-1, -1)
 
+        # quick return if depth is 0
         if depth == 0:
             return self.score(game, self), (-1, -1)
 
         legal_moves = game.get_legal_moves(game.active_player)
 
+        # alphabeta prunning implementation
         if maximizing_player:
             best_score = -inf
             best_position = (-1, -1)
