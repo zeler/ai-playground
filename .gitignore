@@ -94,3 +94,6 @@ ENV/
 
 # enron data
 enron_project/maildir/
+
+# intellij idea
+.idea/
