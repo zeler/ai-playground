@@ -72,6 +72,7 @@ def score_blank_spaces_in_squares(game, player):
 
     return player_score - 1.25 * opponent_score  # noqa
 
+
 def get_blank_count_on_land(game, move):
     min_height = move[0] - 3 if move[0] - 3 > 0 else 0
     max_height = move[0] + 3 if move[0] + 3 > 0 else game.width
@@ -87,6 +88,7 @@ def get_blank_count_on_land(game, move):
             count += 1
 
     return count
+
 
 def score_mc_with_walls_corners(game, player):
     """
@@ -106,13 +108,17 @@ def score_mc_with_walls_corners(game, player):
 
     return float(len(player_moves) - len(opponent_moves)) + score  # noqa
 
+
 def is_near_wall(game, move):
     """Calculate if move lies near wall"""
     return True if move[0] in [0, game.height - 1] and move[1] in [0, game.width - 1] else False
 
+
 def is_in_corner(game, move):
     """Calculate if move lies near wall"""
-    return True if move in [(0,0), (game.height - 1, 0), (0, game.width - 1), (game.height - 1, game.width - 1)] else False
+    return True if move in [(0,0), (game.height - 1, 0), (0, game.width - 1), (game.height - 1, game.width - 1)] \
+        else False
+
 
 class CustomPlayer:
     """Game-playing agent that chooses a move using your evaluation function
@@ -191,7 +197,6 @@ class CustomPlayer:
 
         self.time_left = time_left
 
-
         # count legal moves - if there are not any, quickly end
         legal_moves = game.get_legal_moves()
 
@@ -203,7 +208,7 @@ class CustomPlayer:
 
         # Opening move - try to place player in the middle
         if not game.get_player_location(game.active_player) and game.move_is_legal((x_pos, y_pos)):  # noqa
-            return (x_pos, y_pos)
+            return x_pos, y_pos
 
         best_score = -inf
         best_position = (-1, -1)
@@ -216,7 +221,7 @@ class CustomPlayer:
 
             if self.iterative:
                 depth = 1
-                # Iterativly increase search depth
+                # Iteratively increase search depth
                 while True:
                     score, position = self.execute_search(game, depth)
 
@@ -377,7 +382,7 @@ class CustomPlayer:
             for move in legal_moves:
                 future = self.alphabeta(game.forecast_move(move), depth - 1, alpha, beta, maximizing_player=False)  # noqa
 
-                if (best_score < future[0]):
+                if best_score < future[0]:
                     best_score = future[0]
                     best_position = move
 
@@ -394,7 +399,7 @@ class CustomPlayer:
             for move in legal_moves:
                 future = self.alphabeta(game.forecast_move(move), depth - 1, alpha, beta, maximizing_player=True)  # noqa
 
-                if (best_score > future[0]):
+                if best_score > future[0]:
                     best_score = future[0]
                     best_position = move
 
