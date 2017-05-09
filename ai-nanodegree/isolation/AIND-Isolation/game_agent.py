@@ -42,11 +42,11 @@ def custom_score(game, player):
 
 def combined_heuristics(game, player):
     """
-    Combined heuristics using number
-    of clear spaces around landing move in early stages of the game and wall and corner detection in later stages.
+    Combined heuristics using wall and corner detection in early stages and number
+    of clear spaces around landing move in later stages of the game.
     """
 
-    if len(game.get_blank_spaces()) < 0.4 * game.width * game.height:
+    if len(game.get_blank_spaces()) > 0.5  *  game.width * game.height:
         return score_mc_with_walls_corners(game, player)
 
     return score_blank_spaces_in_squares(game, player)
@@ -55,8 +55,8 @@ def combined_heuristics(game, player):
 def score_blank_spaces_in_squares(game, player):
     """ 
     This heuristics is based o count of blank spaces around possible landing moves of this move. The motivation for this
-    is, the less balnk spaces are around landing moves overally, the more (less) posibilities for next move will player 
-    (opponent) have. The priority for minimizing opponent moves is slighty higher.
+    is, the less blank spaces are around landing moves overall, the more (less) possibilities for next move will player 
+    (opponent) have. The priority for minimizing opponent moves is slightly higher.
     """
 
     player_moves = game.get_legal_moves(player=player)
@@ -203,8 +203,8 @@ class CustomPlayer:
         if not legal_moves:
             return (-1, -1)
 
-        x_pos = game.width / 2
-        y_pos = game.height / 2
+        x_pos = int(game.width / 2)
+        y_pos = int(game.height / 2)
 
         # Opening move - try to place player in the middle
         if not game.get_player_location(game.active_player) and game.move_is_legal((x_pos, y_pos)):  # noqa
