@@ -361,7 +361,7 @@ class AlphaBetaPlayer(IsolationPlayer):
             depth = 1
             # Iteratively increase search depth
             while True:
-                best_position = self.alphabeta(game, depth)
+                best_position = self.alphabeta(game.copy(), depth)
                 depth += 1
 
         except SearchTimeout:
@@ -428,6 +428,12 @@ class AlphaBetaPlayer(IsolationPlayer):
             if best_position is None or score > best_score:
                 best_score = score
                 best_position = move
+
+            alpha = max(alpha, score)
+
+            if beta <= alpha:
+                # beta cut-off
+                break
 
         # Return the best move from the last completed search iteration
         return best_position
