@@ -422,6 +422,7 @@ class AlphaBetaPlayer(IsolationPlayer):
         best_score = -inf
         best_position = None
 
+        # First iteration - maximizing player
         for move in game.get_legal_moves():
             score = self.alphabeta_impl(game.forecast_move(move), depth - 1, alpha, beta, False)
 
@@ -429,6 +430,7 @@ class AlphaBetaPlayer(IsolationPlayer):
                 best_score = score
                 best_position = move
 
+            # We need to implement alpha-beta pruning also for this depth
             alpha = max(alpha, score)
 
             if beta <= alpha:
