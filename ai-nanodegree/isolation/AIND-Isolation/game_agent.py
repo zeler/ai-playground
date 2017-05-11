@@ -49,6 +49,10 @@ def combined_heuristics(game, player):
     of clear spaces around landing move in later stages of the game.
     """
 
+    # the value of 0.5 was estimated by trial and error. Making it higher or lower impacted
+    # score in a negative way (due to performance impact of search). This could be fine tuned automatically,
+    # but for this project this is enough.
+
     if len(game.get_blank_spaces()) > 0.5  *  game.width * game.height:
         return score_mc_with_walls_corners(game, player)
 
@@ -73,6 +77,12 @@ def score_blank_spaces_in_squares(game, player):
     for move in opponent_moves:
         opponent_score += get_blank_count_on_land(game, move)
 
+    # the main idea for setting 1.25 for opponent score is to try to limit
+    # opponent moves in more aggressive way. This parameter was fine tuned
+    # by hand, although it also could be done in a programmatic way. Lower
+    # values didn't have large impact on overall performance, higher values
+    # madce the agent behave more aggressive which sometimes led to unnecessary
+    # losses of games
     return player_score - 1.25 * opponent_score  # noqa
 
 
@@ -195,7 +205,7 @@ class MinimaxPlayer(IsolationPlayer):
         try:
             # The try/except block will automatically catch the exception
             # raised when the timer is about to expire.
-            return self.minimax(game, self.search_depth)
+            return self.minimax(game.copy(), self.search_depth)
 
         except SearchTimeout:
             pass  # Handle any actions required after timeout as needed

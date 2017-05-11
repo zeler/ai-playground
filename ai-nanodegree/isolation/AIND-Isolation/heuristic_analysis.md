@@ -49,3 +49,13 @@ than  other heurisic functions.
 |    6    |  AB_Center  |   5  -  5 |    5  -  5 |    4  -  6|     7  -  3|
 |    7    | AB_Improved |   5  -  5 |    5  -  5|     3  -  7|     6  -  4|
 |         |  Win Rate:  |    50.0%   |     55.7%    |    42.9%   |    60.0%|
+
+The main reasons for choosing this heuristics are:
+
+1. Score - this heuristic function achieved 10% better score than "Improved" heuristic function
+2. Complexity - there are more features which are used for score calculation than in the other heuristic
+  functions. Because of this, agent can make more informed decisions.
+3. Performance - This heuristic is relatively simple to calculate and is optimized for different stages
+  of game - in the early stages, less demanding calucations are made (checking for legal move count and
+  wall and corner proximity). In later stages, more demanding heuristic is used (counting blank spaces around each
+  landing move) but due to the fact the players have less options for legal moves, it doesn't have high performance impact. 
