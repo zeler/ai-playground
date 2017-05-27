@@ -57,23 +57,61 @@ class AirCargoProblem(Problem):
         def load_actions():
             """Create all concrete Load actions and return a list
 
+            Action(Load(c, p, a),
+	            PRECOND: At(c, a) ∧ At(p, a) ∧ Cargo(c) ∧ Plane(p) ∧ Airport(a)
+	            EFFECT: ¬ At(c, a) ∧ In(c, p))
+
             :return: list of Action objects
             """
             loads = []
-            # TODO create all load ground actions from the domain Load action
+
+            for cargo in self.cargos:
+                for plane in self.planes:
+                    for airport in self.airports:
+                        precond_pos = [expr("At({}, {})".format(cargo, airport)),
+                                       expr("At({}, {})".format(plane, airport))]
+                        precond_neg = []
+                        effect_add = [expr("In({}, {})".format(cargo, plane))]
+                        effect_rem = [expr("At({}, {})".format(cargo, airport))]
+                        load = Action(expr("Load({}, {}, {})".format(cargo, plane, airport)),
+                                      [precond_pos, precond_neg],
+                                      [effect_add, effect_rem])
+                        loads.append(load)
+
             return loads
 
         def unload_actions():
             """Create all concrete Unload actions and return a list
 
+            Action(Unload(c, p, a),
+                PRECOND: In(c, p) ∧ At(p, a) ∧ Cargo(c) ∧ Plane(p) ∧ Airport(a)
+                EFFECT: At(c, a) ∧ ¬ In(c, p))
+
             :return: list of Action objects
             """
             unloads = []
-            # TODO create all Unload ground actions from the domain Unload action
+
+            for cargo in self.cargos:
+                for plane in self.planes:
+                    for airport in self.airports:
+                        precond_pos = [expr("In({}, {})".format(cargo, plane)),
+                                       expr("At({}, {})".format(plane, airport))]
+                        precond_neg = []
+                        effect_add = [expr("At({}, {})".format(cargo, airport))]
+                        effect_rem = [expr("In({}, {})".format(cargo, plane))]
+                        unload = Action(expr("Unload({}, {}, {})".format(cargo, plane, airport)),
+                                        [precond_pos, precond_neg],
+                                        [effect_add, effect_rem])
+                        unloads.append(unload)
+
             return unloads
 
         def fly_actions():
             """Create all concrete Fly actions and return a list
+
+            Action(Fly(p, from, to),
+                PRECOND: At(p, from) ∧ Plane(p) ∧ Airport(from) ∧ Airport(to)
+                EFFECT: ¬ At(p, from) ∧ At(p, to))
 
             :return: list of Action objects
             """
