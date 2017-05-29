@@ -407,8 +407,8 @@ class PlanningGraph():
         :param node_a2: PgNode_a
         :return: bool
         """
-        # TODO test for Inconsistent Effects between nodes
-        return False
+        return len(list(set(node_a1.action.effect_add).intersection(set(node_a2.action.effect_rem)))) > 0
+
 
     def interference_mutex(self, node_a1: PgNode_a, node_a2: PgNode_a) -> bool:
         """
