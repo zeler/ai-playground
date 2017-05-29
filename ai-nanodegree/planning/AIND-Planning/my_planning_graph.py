@@ -393,6 +393,11 @@ class PlanningGraph():
             return False
         return True
 
+
+    def intersect_size(self, l1: list, l2: list) -> int:
+        return len(list(set(l1).intersection(set(l2))))
+
+
     def inconsistent_effects_mutex(self, node_a1: PgNode_a, node_a2: PgNode_a) -> bool:
         """
         Test a pair of actions for inconsistent effects, returning True if
@@ -407,7 +412,7 @@ class PlanningGraph():
         :param node_a2: PgNode_a
         :return: bool
         """
-        return len(list(set(node_a1.action.effect_add).intersection(set(node_a2.action.effect_rem)))) > 0
+        return self.intersect_size(node_a1.action.effect_add, node_a2.action.effect_rem) > 0
 
 
     def interference_mutex(self, node_a1: PgNode_a, node_a2: PgNode_a) -> bool:
@@ -424,8 +429,8 @@ class PlanningGraph():
         :param node_a2: PgNode_a
         :return: bool
         """
-        # TODO test for Interference between nodes
-        return False
+        return self.intersect_size(node_a1.action.effect_add, node_a2.action.effect_rem) == len(node_a1.action.effect_add)
+        
 
     def competing_needs_mutex(self, node_a1: PgNode_a, node_a2: PgNode_a) -> bool:
         """
@@ -438,8 +443,13 @@ class PlanningGraph():
         :return: bool
         """
 
-        # TODO test for Competing Needs between nodes
+        for parentA in node_a1.parents:
+            for parentB in node_a2.parents:
+                if (parentA.is_mutex(parentB)):
+                    return True
+
         return False
+        
 
     def update_s_mutex(self, nodeset: set):
         """ Determine and update sibling mutual exclusion for S-level nodes
