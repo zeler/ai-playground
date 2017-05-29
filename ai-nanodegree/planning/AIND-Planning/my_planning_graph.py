@@ -502,7 +502,7 @@ class PlanningGraph():
         :param node_s2: PgNode_s
         :return: bool
         """
-        
+
         for parentS1 in node_s1.parents:
             for parentS2 in node_s2.parents:
                 if not parentS1.is_mutex(parentS2):
@@ -516,6 +516,13 @@ class PlanningGraph():
         :return: int
         """
         level_sum = 0
-        # TODO implement
         # for each goal in the problem, determine the level cost, then add them together
+
+        for goal in self.problem.goal:
+            pgGoal = PgNode_s(goal, True)
+            for i in range(0, len(self.s_levels)):
+                if pgGoal in self.s_levels[i]:
+                    level_sum += i
+                    break
+
         return level_sum
