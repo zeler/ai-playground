@@ -59,14 +59,20 @@ class AirCargoProblem(Problem):
             """
             loads = []
 
+            # create combinations of all cargos, planes and airports
+            # to generate all possible load actions
             for cargo in self.cargos:
                 for plane in self.planes:
                     for airport in self.airports:
+                        # generate action precodnitions and effects
+                        # in predefined format (see method docs)
                         precond_pos = [expr("At({}, {})".format(cargo, airport)),
                                        expr("At({}, {})".format(plane, airport))]
                         precond_neg = []
                         effect_add = [expr("In({}, {})".format(cargo, plane))]
                         effect_rem = [expr("At({}, {})".format(cargo, airport))]
+
+                        # create action and append it to all other load actions
                         load = Action(expr("Load({}, {}, {})".format(cargo, plane, airport)),
                                       [precond_pos, precond_neg],
                                       [effect_add, effect_rem])
@@ -85,14 +91,20 @@ class AirCargoProblem(Problem):
             """
             unloads = []
 
+            # create combinations of all cargos, planes and airports
+            # to generate all possible unload actions
             for cargo in self.cargos:
                 for plane in self.planes:
                     for airport in self.airports:
+                        # generate action precodnitions and effects
+                        # in predefined format (see method docs)
                         precond_pos = [expr("In({}, {})".format(cargo, plane)),
                                        expr("At({}, {})".format(plane, airport))]
                         precond_neg = []
                         effect_add = [expr("At({}, {})".format(cargo, airport))]
                         effect_rem = [expr("In({}, {})".format(cargo, plane))]
+
+                        # create action and append it to all other unload actions
                         unload = Action(expr("Unload({}, {}, {})".format(cargo, plane, airport)),
                                         [precond_pos, precond_neg],
                                         [effect_add, effect_rem])
@@ -137,15 +149,19 @@ class AirCargoProblem(Problem):
         """
         possible_actions = []
         propKB = PropKB()
+
+        # use propositional knowledge base to decode current state
         propKB.tell(decode_state(state, self.state_map).pos_sentence())
         for action in self.actions_list:
             is_possible = True
+            # check if preconditions are met
             for clause in action.precond_pos:
                 if clause not in propKB.clauses:
                     is_possible = False
             for clause in action.precond_neg:
                 if clause in propKB.clauses:
                     is_possible = False
+            # if yes, action is possible
             if is_possible:
                 possible_actions.append(action)
         return possible_actions
@@ -160,7 +176,10 @@ class AirCargoProblem(Problem):
         :return: resulting state after action
         """
         new_state = FluentState([], [])
+        # decode old fluent state
         old_state = decode_state(state, self.state_map)
+
+        # apply all effects
         for fluent in old_state.pos:
             if fluent not in action.effect_rem:
                 new_state.pos.append(fluent)
@@ -173,6 +192,8 @@ class AirCargoProblem(Problem):
         for fluent in action.effect_rem:
             if fluent not in new_state.neg:
                 new_state.neg.append(fluent)
+
+        # return new state
         return encode_state(new_state, self.state_map)
 
     def goal_test(self, state: str) -> bool:
@@ -216,6 +237,8 @@ class AirCargoProblem(Problem):
 
         propKB = PropKB()
         propKB.tell(decode_state(node.state, self.state_map).pos_sentence())
+        # if any of the clauses are goals, we decrase value by 1 to indicate
+        # we don't need more actions to get to that goal
         for clause in self.goal:
             if clause in propKB.clauses:
                 count -= 1
@@ -266,6 +289,8 @@ def air_cargo_p2() -> AirCargoProblem:
         ∧ Airport(JFK) ∧ Airport(SFO) ∧ Airport(ATL))
     Goal(At(C1, JFK) ∧ At(C2, SFO) ∧ At(C3, SFO))
     """
+
+    # implement this as per example in air_cargo_p1
     cargos = ['C1', 'C2', 'C3']
     planes = ['P1', 'P2', 'P3']
     airports = ['JFK', 'SFO', 'ATL']
@@ -315,6 +340,8 @@ def air_cargo_p3() -> AirCargoProblem:
 	    ∧ Airport(JFK) ∧ Airport(SFO) ∧ Airport(ATL) ∧ Airport(ORD))
     Goal(At(C1, JFK) ∧ At(C3, JFK) ∧ At(C2, SFO) ∧ At(C4, SFO))
     """
+
+    # implement this as per example in air_cargo_p1
     cargos = ['C1', 'C2', 'C3', 'C4']
     planes = ['P1', 'P2']
     airports = ['JFK', 'SFO', 'ATL', 'ORD']
