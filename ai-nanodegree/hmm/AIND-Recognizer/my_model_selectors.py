@@ -69,15 +69,35 @@ class SelectorBIC(ModelSelector):
     """
 
     def select(self):
-        """ select the best model for self.this_word based on
-        BIC score for n between self.min_n_components and self.max_n_components
 
-        :return: GaussianHMM object
-        """
-        warnings.filterwarnings("ignore", category=DeprecationWarning)
+        bestBIC = None
+        bestModel = None
 
-        # TODO implement model selection based on BIC scores
-        raise NotImplementedError
+        for num_states in range(self.min_n_components, self.max_n_components + 1):
+
+            try:
+                hmm_model = GaussianHMM(n_components=num_states, covariance_type="diag",
+                                        n_iter=1000, random_state=self.random_state,
+                                        verbose=self.verbose)
+
+                if self.verbose:
+                    print("model created for {} with {} states".format(self.this_word, num_states))
+
+                hmm_model.fit(self.X, self.lengths)
+                logL = hmm_model.score(self.X, self.lengths)
+
+                p = num_states * num_states + 2 * num_states * len(self.X[0]) - 1
+                bic = (-2) * logL + p * math.log(len(self.X))
+
+                if bestBIC is None or bic < bestBIC:
+                    bestModel = hmm_model
+                    bestBIC = bic
+            except:
+                if self.verbose:
+                    print("failure on {} with {} states".format(self.this_word, num_states))
+
+        return bestModel
+
 
 
 class SelectorDIC(ModelSelector):
@@ -102,7 +122,36 @@ class SelectorCV(ModelSelector):
     '''
 
     def select(self):
-        warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-        # TODO implement model selection using CV
-        raise NotImplementedError
+        split_method = KFold(n_splits=(len(self.sequences) if (len(self.sequences) < 3) else 3))
+        bestLogL = None
+        bestModel = None
+
+        for num_states in range(self.min_n_components, self.max_n_components + 1):
+
+            try:
+                cnt = 0
+                sumLogL = 0
+
+                hmm_model = GaussianHMM(n_components=num_states, covariance_type="diag",
+                                        n_iter=1000, random_state=self.random_state, verbose=self.verbose)
+
+                if self.verbose:
+                    print("model created for {} with {} states".format(self.this_word, num_states))
+
+                for cv_train_idx, cv_test_idx in split_method.split(self.sequences):
+
+                    hmm_model.fit(*combine_sequences(cv_train_idx, self.sequences))
+                    sumLogL += hmm_model.score(*combine_sequences(cv_test_idx, self.sequences))
+                    cnt += 1
+
+                avgLogL = sumLogL / cnt
+                if bestLogL is None or avgLogL > bestLogL:
+                    bestModel = hmm_model
+                    bestLogL = avgLogL
+            except:
+                if self.verbose:
+                    print("failure on {} with {} states".format(self.this_word, num_states))
+
+        return bestModel
+
